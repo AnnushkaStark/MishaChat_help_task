@@ -1,6 +1,6 @@
 fastapi==0.112.2
 uvicorn==0.14.0
-alembic==1.13.2
+alembic==1.13.1
 sqlalchemy==3.0.3
 pre-commit==6.0.2
 aiosqlite==0.20.0
