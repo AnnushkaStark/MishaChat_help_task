@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List
 
-from m2m import DeletedForUser
 from sqlalchemy import (
     Boolean,
     DateTime,
@@ -14,6 +13,8 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from databases.database import Base
+
+from .m2m import DeletedForUser
 
 if TYPE_CHECKING:
     from .attachment import Attachment
@@ -44,7 +45,7 @@ class Message(Base):
             - attachments: List[Attachment] - связь вложения
     """
 
-    __table__ = "message"
+    __tablename__ = "message"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     text: Mapped[str] = mapped_column(Text, default="")

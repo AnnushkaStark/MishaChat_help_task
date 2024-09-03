@@ -51,9 +51,10 @@ class User(Base):
     sent_messages: Mapped[
         List["Message"]
     ] = relationship(  # отправленные сообщения
-        "Message", back_populates="author", foreign_keys="[Message.author_id]"
+        "Message",
+        back_populates="author",
     )
-    messages_deleted_for_me: Mapped[List[Message]] = relationship(
+    messages_deleted_for_me: Mapped[List["Message"]] = relationship(
         "Message",
         back_populates="deleted_for_user",
         secondary=DeletedForUser.__table__,
