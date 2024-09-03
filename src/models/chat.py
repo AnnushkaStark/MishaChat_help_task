@@ -6,6 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from databases.database import Base
 
+from .m2m import ChatUsers
+
 if TYPE_CHECKING:
     from .message import Message
     from .user import User
@@ -47,6 +49,7 @@ class Chat(Base):
     participants: Mapped["User"] = relationship(
         "User",
         back_populates="chats_participant",
+        secondary=ChatUsers.__table__,
     )
     messages: Mapped[List["Message"]] = relationship(
         "Message", back_populates="chat"

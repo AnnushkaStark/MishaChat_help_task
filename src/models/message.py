@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
-from m2m import ChatUsers
+from m2m import DeletedForUser
 from sqlalchemy import (
     Boolean,
     DateTime,
@@ -36,6 +36,8 @@ class Message(Base):
             - delete_for_all: bool - удалено для всех пользователей чата
             - author_id: int - FK User - автор сообщения
             - author: User - связь  пользователь автор сообщения
+            - deletd_for_user : List[User] - список пользователей которые
+                удалили данное сообщение для себя связь М2M
             - chat_id: int FK Chat - идентификатор чата в который отправлено
                 сообщение
             - chat: Chat - связь чат в которрый отпралено сообщение
@@ -47,8 +49,8 @@ class Message(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     text: Mapped[str] = mapped_column(Text, default="")
     type: Mapped[str] = mapped_column(
-        String, default=""
-    )  # Заглушка чтобы не делать энамы
+        String, default=""  # Заглушка чтобы не делать энамы
+    )
     create_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -58,7 +60,6 @@ class Message(Base):
     deleted_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
     )
-    delete_for_me: Mapped[bool] = mapped_column(Boolean, default=False)
     delete_for_all: Mapped[bool] = mapped_column(Boolean, default=False)
     author_id: Mapped[int] = mapped_column(
         Integer,
@@ -67,7 +68,11 @@ class Message(Base):
     author: Mapped["User"] = relationship(
         "User",
         back_populates="sent_messages",
-        secondary=ChatUsers.__table__,
+    )
+    deleted_for_user: Mapped[List["User"]] = relationship(
+        "User",
+        back_populates="messages_deleted_for_me",
+        secondary=DeletedForUser.__table__,
     )
     chat_id: Mapped[int] = mapped_column(
         Integer,

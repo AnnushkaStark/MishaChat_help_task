@@ -26,3 +26,17 @@ class ChatUsers(Base):
         ForeignKey("user.id", ondelete="CASCADE"),
         primary_key=True,
     )
+
+
+class DeletedForUser(Base):
+    __tablename__ = "deleted_for_user"
+    __table_args__ = (
+        UniqueConstraint("message_id", "user_id", name="uix_deletd_message"),
+    )
+    message_id: Mapped[int] = mapped_column(
+        ForeignKey("message.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id", ondelete="CASCADE"), primary_key=True
+    )
