@@ -29,6 +29,15 @@ class ChatUsers(Base):
 
 
 class DeletedForUser(Base):
+    """
+    Модель удаленных сообщений для определеннго пользователя
+
+    ## Attrs:
+        - message_id: int - идентификатор сообщения
+        -  user_id - идентификатор пользователя
+            для котрого оно удалено
+    """
+
     __tablename__ = "deleted_for_user"
     __table_args__ = (
         UniqueConstraint("message_id", "user_id", name="uix_deletd_message"),
