@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from crud.user import crud_user
+from crud.user import user_crud
 from databases.database import get_async_session
 from models import User
 from schemas.token import TokenPayload
@@ -46,4 +46,4 @@ async def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    return await crud_user.get_by_username(db=db, username=token_user.username)
+    return await user_crud.get_by_username(db=db, username=token_user.username)
