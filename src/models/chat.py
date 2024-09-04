@@ -46,7 +46,7 @@ class Chat(Base):
         ForeignKey("user.id", ondelete="CASCADE"),
     )
     owner: Mapped["User"] = relationship("User", back_populates="chats_owner")
-    participants: Mapped["User"] = relationship(
+    participants: Mapped[List["User"]] = relationship(
         "User",
         back_populates="chats_participant",
         secondary=ChatUsers.__table__,

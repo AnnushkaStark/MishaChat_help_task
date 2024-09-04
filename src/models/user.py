@@ -62,7 +62,7 @@ class User(Base):
     chats_owner: Mapped[List["Chat"]] = relationship(
         "Chat", back_populates="owner"
     )
-    chat_participant: Mapped[List["Chat"]] = relationship(
+    chats_participant: Mapped[List["Chat"]] = relationship(
         "Chat",
         secondary=ChatUsers.__table__,
         back_populates="participants",

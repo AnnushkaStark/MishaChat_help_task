@@ -36,7 +36,7 @@ class Attachment(Base):
     type: Mapped[str] = mapped_column(String, default="")  # Заглушка тип файла
     message_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("user.id", ondelete="CASCADE"),
+        ForeignKey("message.id", ondelete="CASCADE"),
     )
     message: Mapped["Message"] = relationship(
         "Message", back_populates="attachments"

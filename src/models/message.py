@@ -81,7 +81,7 @@ class Message(Base):
     )
     chat: Mapped["Chat"] = relationship("Chat", back_populates="messages")
     attachments: Mapped[List["Attachment"]] = relationship(
-        "Attachment", back_populates="chat"
+        "Attachment", back_populates="message"
     )
 
     def __repr__(self):
