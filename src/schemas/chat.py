@@ -7,6 +7,7 @@ from .user import UserResponse
 
 class ChatBase(BaseModel):
     title: str = Field(min_length=3, max_length=50)
+    privat_status: Optional[bool] = Field(default=False)
 
     class Config:
         from_attributes = True
@@ -14,13 +15,12 @@ class ChatBase(BaseModel):
 
 class ChatCreate(ChatBase):
     participants_ids: List[int] = []
-    privat_status: Optional[bool] = Field(default=False)
 
     class Config:
         from_attributes = True
 
 
-class ChatCreateDB(ChatCreate):
+class ChatCreateDB(ChatBase):
     owner_id: int
 
     class Config:
