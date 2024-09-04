@@ -20,7 +20,10 @@ class ChatCRUD(BaseAsyncCRUD[Chat, ChatCreateDB, ChatUpdate]):
         """
         statement = (
             select(self.model)
-            .options(joinedload(self.model.participants))
+            .options(
+                joinedload(self.model.participants),
+                joinedload(self.model.owner),
+            )
             .where(self.model.id == obj_id)
         )
         statement = statement.where(
@@ -42,11 +45,14 @@ class ChatCRUD(BaseAsyncCRUD[Chat, ChatCreateDB, ChatUpdate]):
         """
         statement = (
             select(self.model)
-            .options(joinedload(self.model.participants))
+            .options(
+                joinedload(self.model.participants),
+                joinedload(self.model.owner),
+            )
             .where(self.model.id == owner_id)
         )
         result = await db.execute(statement)
-        return result.scalars().all()
+        return result.scalars().unique().all()
 
     async def get_by_participant_id(
         self, db: AsyncSession, participant_id: int
@@ -56,11 +62,14 @@ class ChatCRUD(BaseAsyncCRUD[Chat, ChatCreateDB, ChatUpdate]):
         """
         statement = (
             select(self.model)
-            .options(joinedload(self.model.participants))
+            .options(
+                joinedload(self.model.participants),
+                joinedload(self.model.owner),
+            )
             .where(self.model.participants.any(id=participant_id))
         )
         result = await db.execute(statement)
-        return result.scalars().all()
+        return result.scalars().unique().all()
 
     async def create(
         self,

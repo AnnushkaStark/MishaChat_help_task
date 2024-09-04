@@ -10,10 +10,7 @@ from schemas.token import TokenAccessRefresh
 from schemas.user import UserCreate, UserLogin
 from services import user as service_user
 from utilities.security.password_hasher import verify_password
-from utilities.security.seciruty import (
-    TokenSubject,
-    create_tokens,
-)
+from utilities.security.seciruty import TokenSubject, create_tokens
 
 router = APIRouter()
 
@@ -51,7 +48,7 @@ async def login(
     if found_user := await user_crud.get_by_username(
         db, username=login_data.username
     ):
-        if found_user.is_active:
+        if found_user:
             if verify_password(
                 plain_password=login_data.password,
                 hashed_password=found_user.password,
