@@ -9,7 +9,7 @@ from models import DeletedForUser
 
 
 class DeletForUserCRUD(BaseAsyncCRUD[DeletedForUser, BaseModel, BaseModel]):
-    async def get_by_id_and_message_id(
+    async def get_by_user_id_and_message_id(
         self, db: AsyncSession, user_id: int, message_id: int
     ) -> Optional[DeletedForUser]:
         statement = select(self.model).where(
