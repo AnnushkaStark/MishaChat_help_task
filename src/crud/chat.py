@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import List, Optional
 
-from sqlalchemy import insert
+from sqlalchemy import insert, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload, selectinload
@@ -11,11 +11,11 @@ from schemas.chat import ChatCreateDB, ChatUpdate
 
 
 class ChatCRUD(BaseAsyncCRUD[Chat, ChatCreateDB, ChatUpdate]):
-    async def get_by_id_with_participants(
-        self, db: AsyncSession, obj_id: int
+    async def get_by_id_and_user_id(
+        self, db: AsyncSession, obj_id: int, user_id: int
     ) -> Optional[Chat]:
         """
-        вывод чата с участниками
+        вывод чата с участниками просто по чат айди и юзер айди
         (на всякий случай)
         """
         statement = (
@@ -23,12 +23,18 @@ class ChatCRUD(BaseAsyncCRUD[Chat, ChatCreateDB, ChatUpdate]):
             .options(joinedload(self.model.participants))
             .where(self.model.id == obj_id)
         )
+        statement = statement.where(
+            or_(
+                self.model.owner_id == user_id,
+                self.model.participants.any(id=user_id),
+            )
+        )
         result = await db.execute(statement)
         return result.scalars().first()
 
     async def get_by_owner_id(
         self, db: AsyncSession, owner_id: int
-    ) -> Optional[Chat]:
+    ) -> List[Chat]:
         """
         Просмотр всех чатов с участниками
         созданных определенным
@@ -40,7 +46,21 @@ class ChatCRUD(BaseAsyncCRUD[Chat, ChatCreateDB, ChatUpdate]):
             .where(self.model.id == owner_id)
         )
         result = await db.execute(statement)
-        return result.scalars().first()
+        return result.scalars().all()
+
+    async def get_by_participant_id(
+        self, db: AsyncSession, participant_id: int
+    ) -> List[Chat]:
+        """
+        Просмотр всех чатов где пользовательявляется участником
+        """
+        statement = (
+            select(self.model)
+            .options(joinedload(self.model.participants))
+            .where(self.model.participants.any(id=participant_id))
+        )
+        result = await db.execute(statement)
+        return result.scalars().all()
 
     async def create(
         self,
