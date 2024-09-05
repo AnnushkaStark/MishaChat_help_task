@@ -17,13 +17,6 @@ class AttachmentCreate(AttachmentBase):
 
 
 class AttachmentCreateDB(AttachmentCreate):
-    chat_id: int
-
-    class Config:
-        from_attributes = True
-
-
-class AttachmentUpdate(AttachmentCreate):
     message_id: int
 
     class Config:

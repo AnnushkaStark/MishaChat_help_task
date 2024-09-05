@@ -21,7 +21,7 @@ class MessageCreate(MessageBase):
         from_attributes = True
 
 
-class MessageCreateDB(MessageCreate):
+class MessageCreateDB(MessageBase):
     author_id: int
     chat_id: int
 
@@ -38,7 +38,7 @@ class MessageUpdate(MessageBase):
 
 class MessageResponse(MessageBase):
     id: int
-    chat_id : int
+    chat_id: int
     author_id: int
     author: UserResponse
     created_at: Optional[datetime] = None

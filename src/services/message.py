@@ -13,16 +13,17 @@ async def create(
 ) -> Message:
     try:
         create_schema = MessageCreateDB(
-            **create_data, author_id=author_id, chat_id=chat_id
+            **create_data.model_dump(exclude_unset=True),
+            author_id=author_id,
+            chat_id=chat_id
         )
         message = await message_crud.create(
             db=db, create_schema=create_schema, commit=False
         )
         attachments = await get_create_schema(create_data.attachments)
-        attachments_at_db = await attachmet_service.create(
+        message.attachments = await attachmet_service.create(
             db=db, list_crate_data=attachments, message_id=message.id
         )
-        message.attachments = attachments_at_db
         await db.commit()
         return message
     except Exception as ex:
