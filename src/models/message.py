@@ -56,10 +56,10 @@ class Message(Base):
         DateTime(timezone=True), server_default=func.now()
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(timezone=True), nullable=True
     )
     deleted_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(timezone=True), nullable=True
     )
     delete_for_all: Mapped[bool] = mapped_column(Boolean, default=False)
     author_id: Mapped[int] = mapped_column(

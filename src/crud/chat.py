@@ -33,7 +33,7 @@ class ChatCRUD(BaseAsyncCRUD[Chat, ChatCreateDB, ChatUpdate]):
             )
         )
         result = await db.execute(statement)
-        return result.scalars().first()
+        return result.scalars().unique().first()
 
     async def get_by_owner_id(
         self, db: AsyncSession, owner_id: int

@@ -70,7 +70,10 @@ class MessageCRUD(BaseAsyncCRUD[Message, MessageCreateDB, MessageUpdate]):
             .values(**data)
             .returning(self.model)
             .options(
+                selectinload(self.model.author),
                 selectinload(self.model.attachments),
+                selectinload(self.model.chat),
+                selectinload(self.model.deleted_for_user),
             )
         )
         res = await db.execute(stmt)

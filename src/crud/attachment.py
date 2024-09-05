@@ -1,5 +1,6 @@
 from typing import List
 
+from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from crud.async_crud import BaseAsyncCRUD
@@ -13,9 +14,12 @@ class AttachmentCRUD(
     async def bulk_create(
         self, db: AsyncSession, list_data: List[AttachmentCreateDB]
     ) -> List[Attachment]:
-        result = await self.create(Attachment(**data) for data in list_data)
+        result_data = [s.model_dump() for s in list_data]
+        stmt = insert(self.model).values(result_data).returning(self.model)
+        result = await db.execute(stmt)
+        objs = result.scalars().all()
         await db.commit()
-        return result
+        return objs
 
 
 attachment_crud = AttachmentCRUD(Attachment)
