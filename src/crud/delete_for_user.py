@@ -18,5 +18,16 @@ class DeletForUserCRUD(BaseAsyncCRUD[DeletedForUser, BaseModel, BaseModel]):
         result = await db.execute(statement)
         return result.scalars().first()
 
+    async def create_by_message_id_and_user_id(
+        self, db: AsyncSession, user_id: int, message_id: int
+    ) -> DeletedForUser:
+        deleted_for_user_message = self.model(
+            user_id=user_id, message_id=message_id
+        )
+        db.add(deleted_for_user_message)
+        await db.commit()
+        await db.refresh(deleted_for_user_message)
+        return deleted_for_user_message
+
 
 delete_for_user_crud = DeletForUserCRUD(DeletedForUser)

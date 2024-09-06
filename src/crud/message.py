@@ -1,31 +1,58 @@
-from typing import List
+from typing import List, Optional
 
-from sqlalchemy import insert
+from sqlalchemy import insert, not_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload, selectinload
 
 from crud.async_crud import BaseAsyncCRUD
-from models import DeletedForUser, Message
+from models import Message
 from schemas.message import MessageCreateDB, MessageUpdate
 
 
 class MessageCRUD(BaseAsyncCRUD[Message, MessageCreateDB, MessageUpdate]):
-    async def get_by_chat_id(
+    async def get_by_id_and_user_id(
+        self, db: AsyncSession, obj_id: int, user_id: int
+    ) -> Optional[Message]:
+        """
+        Выбирает одно сообщение пользователя
+        (если пользователь не удалил его для себя)
+        """
+        statement = (
+            select(self.model)
+            .options(
+                joinedload(self.model.attachments),
+                joinedload(self.model.deleted_for_user),
+                joinedload(self.model.chat),
+                joinedload(self.model.author),
+            )
+            .where(
+                self.model.id == obj_id,
+                not_(self.model.deleted_for_user.any(id=user_id)),
+            )
+        )
+
+        result = await db.execute(statement)
+        return result.scalars().unique().first()
+
+    async def get_by_chat_id_and_user_id(
         self, db: AsyncSession, chat_id: int, user_id: int
     ) -> List[Message]:
+        """
+        Выбирает все сообщения чата (история чата) -
+        кроме тех сообщений которые пользователь
+        удалил для себя
+        """
         statement = (
             select(self.model)
             .options(
                 joinedload(self.model.author),
                 joinedload(self.model.attachments),
-                joinedload(self.model.deleted_for_user).joinedload(
-                    DeletedForUser.user_id
-                ),
+                joinedload(self.model.deleted_for_user),
             )
             .where(
                 self.model.chat_id == chat_id,
-                user_id != DeletedForUser.user_id,
+                not_(self.model.deleted_for_user.any(id=user_id)),
             )
         )
         result = await db.execute(statement)
@@ -45,14 +72,12 @@ class MessageCRUD(BaseAsyncCRUD[Message, MessageCreateDB, MessageUpdate]):
             .options(
                 joinedload(self.model.author),
                 joinedload(self.model.attachments),
-                joinedload(self.model.deleted_for_user).joinedload(
-                    DeletedForUser.user_id
-                ),
+                joinedload(self.model.deleted_for_user),
             )
             .where(
                 self.model.chat_id == chat_id,
-                user_id != DeletedForUser.user_id,
                 self.model.author_id == user_id,
+                not_(self.model.deleted_for_user.any(id=user_id)),
             )
         )
         result = await db.execute(statement)
@@ -80,6 +105,18 @@ class MessageCRUD(BaseAsyncCRUD[Message, MessageCreateDB, MessageUpdate]):
         if commit:
             await db.commit()
         return res.scalars().first()
+
+    async def mark_deleted(
+        self, db: AsyncSession, user_id: int, message_id: int
+    ) -> Message:
+        if found_message := await self.get_by_id_and_user_id(
+            db=db, user_id=user_id, obj_id=message_id
+        ):
+            found_message.delete_for_all = True
+            db.add(found_message)
+            await db.commit()
+            await db.refresh(found_message)
+            return found_message
 
 
 message_crud = MessageCRUD(Message)
