@@ -33,4 +33,4 @@ class AttachmentUpdate(AttachmentBase):
 
 
 class AttachmentResponse(AttachmentBase):
-    chat_id: int
+    message_id: int

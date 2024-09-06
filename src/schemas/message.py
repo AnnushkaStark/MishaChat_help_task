@@ -38,8 +38,8 @@ class MessageUpdate(MessageBase):
 
 class MessageResponse(MessageBase):
     id: int
-    chat_id: int
     author_id: int
+    chat_id: int
     author: UserResponse
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
