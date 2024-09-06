@@ -29,6 +29,7 @@ class MessageCRUD(BaseAsyncCRUD[Message, MessageCreateDB, MessageUpdate]):
             .where(
                 self.model.id == obj_id,
                 not_(self.model.deleted_for_user.any(id=user_id)),
+                self.model.delete_for_all.is_(False),
             )
         )
 
@@ -53,10 +54,11 @@ class MessageCRUD(BaseAsyncCRUD[Message, MessageCreateDB, MessageUpdate]):
             .where(
                 self.model.chat_id == chat_id,
                 not_(self.model.deleted_for_user.any(id=user_id)),
+                self.model.delete_for_all.is_(False),
             )
         )
         result = await db.execute(statement)
-        return result.scalars().all()
+        return result.scalars().unique().all()
 
     async def get_by_chat_id_and_author_id(
         self, db: AsyncSession, chat_id: int, author_id: int
@@ -78,10 +80,11 @@ class MessageCRUD(BaseAsyncCRUD[Message, MessageCreateDB, MessageUpdate]):
                 self.model.chat_id == chat_id,
                 self.model.author_id == author_id,
                 not_(self.model.deleted_for_user.any(id=author_id)),
+                self.model.delete_for_all.is_(False),
             )
         )
         result = await db.execute(statement)
-        return result.scalars().all()
+        return result.scalars().unique().all()
 
     async def create(
         self,

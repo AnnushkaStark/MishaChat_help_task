@@ -16,7 +16,7 @@ from services import message as message_service
 router = APIRouter()
 
 
-@router.get("/sent/{chat_id}/", response_model=List[MessageResponse])
+@router.get("/chat/massages/{chat_id}/", response_model=List[MessageResponse])
 async def read_all_sent_by_chat_id(
     chat_id: int,
     current_user: User = Depends(get_current_user),
